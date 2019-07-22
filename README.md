@@ -175,8 +175,7 @@ In your terraform `main.tf` file include the [terraform-openshift-deploy](https:
 
 ```terraform
 module "openshift" {
-    # source                = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-deploy.git"
-    source                  = "../git/terraform-openshift-deploy"
+    source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-deploy.git"
     bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
     bastion_private_ssh_key = "${var.private_ssh_key}"
     master_count            = "${var.master_count}"

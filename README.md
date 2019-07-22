@@ -37,6 +37,11 @@ module "infrastructure" {
 }
 ```
 
+Deploy the Infrastructure
+```bash
+$ terraform apply -target=module.infrastructure
+```
+
 ### Step 2: Register VMs with RedHat Satelite
 
 In your terraform `main.tf` file include the [terraform-openshift-rhnregister](https://github.ibm.com/ncolon/terraform-openshift-rhnregister) module.  It will pull necessary information from the infrastructure module above.
@@ -64,6 +69,11 @@ module "rhnregister" {
     bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
     bastion_private_ssh_key = "${var.private_ssh_key}"
 }
+```
+
+Register your servers with RHN
+```bash
+$ terraform apply -target=module.rhnregister
 ```
 
 ### Step 3: Register your infrastructure DNS.
@@ -113,6 +123,11 @@ module "dnscerts" {
 }
 ```
 
+Register your servers with DNS
+```bash
+$ terraform apply -target=module.dnscerts
+```
+
 ### Step 4:  Ansible Configuration Files
 You need to generate an ansible inventory and a hosts file to propagate to your infrastructure for OpenShift deployment.  In your terraform `main.tf` file include the [terraform-openshift-inventory](https://github.ibm.com/ncolon/terraform-openshift-inventory) module. It will pull necessary information from the infrastructure module above.
 
@@ -149,6 +164,11 @@ module "inventory" {
 
 The module will place an `inventory.cfg` and `hosts` file under `inventory_repo` in your modules root directory.
 
+Create the inventory files
+```bash
+$ terraform apply -target=module.inventory
+```
+
 
 ### Step 5: Deploy OpenShift
 In your terraform `main.tf` file include the [terraform-openshift-deploy](https://github.ibm.com/ncolon/terraform-openshift-deploy) module. It will pull necessary information from the infrastructure module above.
@@ -177,6 +197,12 @@ module "openshift" {
 }
 ```
 
+Deploy OpenShift
+```bash
+$ terraform apply -target=module.openshift
+```
+
+### Step 6:  Access your OpenShift Console
 To grab your console URL, ssh into the bastion server and from there ssh into one of your master vms.
 
 ```bash

@@ -45,20 +45,20 @@ You need to provide your own RedHat username (`rhn_username`) and password (`rhn
 
 ```terraform
 module "rhnregister" {
-    source                = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-rhnregister.git"
-    master_ip_address       = "${module.infrastructure.master_public_ip}"
+    source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-rhnregister.git"
+    master_ip_address       = "${module.infrastructure.master_private_ip}"
     master_private_ssh_key  = "${var.private_ssh_key}"
     rhn_username            = "${var.rhn_username}"
     rhn_password            = "${var.rhn_password}"
     rhn_poolid              = "${var.rhn_poolid}"
     master_count            = "${var.master_count}"
-    infra_ip_address        = "${module.infrastructure.infra_public_ip}"
+    infra_ip_address        = "${module.infrastructure.infra_private_ip}"
     infra_private_ssh_key   = "${var.private_ssh_key}"
     infra_count             = "${var.infra_count}"
-    app_ip_address          = "${module.infrastructure.app_public_ip}"
+    app_ip_address          = "${module.infrastructure.app_private_ip}"
     app_private_ssh_key     = "${var.private_ssh_key}"
     app_count               = "${var.app_count}"
-    storage_ip_address      = "${module.infrastructure.storage_public_ip}"
+    storage_ip_address      = "${module.infrastructure.storage_private_ip}"
     storage_private_ssh_key = "${var.private_ssh_key}"
     storage_count           = "${var.storage_count}"
     bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
@@ -78,34 +78,30 @@ resource "random_id" "tag" {
     byte_length = 4
 }
 
-module "cloudflare" {
-    source                = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-cloudflare.git"
-    cloudflare_dns        = "${var.cloudflare_dns}"
-    cloudflare_email      = "${var.cloudflare_email}"
-    cloudflare_token      = "${var.cloudflare_token}"
-    cloudflare_zone       = "${var.domain}"
-    public_master_vip     = "${module.infrastructure.public_master_vip}"
-    public_app_vip        = "${module.infrastructure.public_app_vip}"
-    master_cname          = "${var.master_cname}-${random_id.tag.hex}"
-    app_cname             = "${var.app_cname}-${random_id.tag.hex}"
-    master_count          = "${var.master_count}"
-    app_count             = "${var.app_count}"
-    infra_count           = "${var.infra_count}"
-    storage_count         = "${var.storage_count}"
-    master_hostname       = "${module.infrastructure.master_hostname}"
-    app_hostname          = "${module.infrastructure.app_hostname}"
-    infra_hostname        = "${module.infrastructure.infra_hostname}"
-    storage_hostname      = "${module.infrastructure.storage_hostname}"
-    master_private_ip     = "${module.infrastructure.master_private_ip}"
-    app_private_ip        = "${module.infrastructure.app_private_ip}"
-    infra_private_ip      = "${module.infrastructure.infra_private_ip}"
-    storage_private_ip    = "${module.infrastructure.storage_private_ip}"
-}
-
-module "letsencrypt" {
-    source                = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-letsencrypt.git"
-    letsencrypt              = "${var.letsencrypt}"
+module "dnscerts" {
+    source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-dnscerts.git"
+    dnscerts                 = "${var.dnscerts}"
+    cloudflare_email         = "${var.cloudflare_email}"
+    cloudflare_token         = "${var.cloudflare_token}"
+    cloudflare_zone          = "${var.domain}"
     letsencrypt_email        = "${var.letsencrypt_email}"
+    public_master_vip        = "${module.infrastructure.public_master_vip}"
+    public_app_vip           = "${module.infrastructure.public_app_vip}"
+    master_cname             = "${var.master_cname}-${random_id.tag.hex}"
+    app_cname                = "${var.app_cname}-${random_id.tag.hex}"
+    master_count             = "${var.master_count}"
+    app_count                = "${var.app_count}"
+    infra_count              = "${var.infra_count}"
+    storage_count            = "${var.storage_count}"
+    bastion_public_ip        = "${module.infrastructure.bastion_public_ip}"
+    master_hostname          = "${module.infrastructure.master_hostname}"
+    app_hostname             = "${module.infrastructure.app_hostname}"
+    infra_hostname           = "${module.infrastructure.infra_hostname}"
+    storage_hostname         = "${module.infrastructure.storage_hostname}"
+    master_private_ip        = "${module.infrastructure.master_private_ip}"
+    app_private_ip           = "${module.infrastructure.app_private_ip}"
+    infra_private_ip         = "${module.infrastructure.infra_private_ip}"
+    storage_private_ip       = "${module.infrastructure.storage_private_ip}"
     cloudflare_email         = "${var.cloudflare_email}"
     cloudflare_token         = "${var.cloudflare_token}"
     cluster_cname            = "${var.master_cname}-${random_id.tag.hex}.${var.domain}"
@@ -113,7 +109,7 @@ module "letsencrypt" {
     letsencrypt_dns_provider = "${var.letsencrypt_dns_provider}"
     letsencrypt_api_endpoint = "${var.letsencrypt_api_endpoint}"
     bastion_public_ip        = "${module.infrastructure.bastion_public_ip}"
-    bastion_ssh_key_file     = "${var.bastion_ssh_key_file}"
+    bastion_ssh_key_file     = "${var.private_ssh_key}"
 }
 ```
 
@@ -122,19 +118,19 @@ You need to generate an ansible inventory and a hosts file to propagate to your 
 
 ```terraform
 module "inventory" {
-    source                = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-inventory.git"
+    source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-inventory.git"
     domain                  = "${var.domain}"
+    bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
     bastion_private_ip      = "${module.infrastructure.bastion_private_ip}"
     master_private_ip       = "${module.infrastructure.master_private_ip}"
-    master_public_ip        = "${module.infrastructure.master_public_ip}"
     infra_private_ip        = "${module.infrastructure.infra_private_ip}"
-    infra_public_ip         = "${module.infrastructure.infra_public_ip}"
     app_private_ip          = "${module.infrastructure.app_private_ip}"
     storage_private_ip      = "${module.infrastructure.storage_private_ip}"
     master_hostname         = "${module.infrastructure.master_hostname}"
     infra_hostname          = "${module.infrastructure.infra_hostname}"
     app_hostname            = "${module.infrastructure.app_hostname}"
     storage_hostname        = "${module.infrastructure.storage_hostname}"
+    bastion_private_ssh_key = "${var.private_ssh_key}"
     master_count            = "${var.master_count}"
     infra_count             = "${var.infra_count}"
     app_count               = "${var.app_count}"
@@ -147,7 +143,6 @@ module "inventory" {
     master_cluster_hostname = "${module.infrastructure.public_master_vip}"
     cluster_public_hostname = "${var.master_cname}-${random_id.tag.hex}.${var.domain}"
     app_cluster_subdomain   = "${var.app_cname}-${random_id.tag.hex}.${var.domain}"
-    letsencrypt             = "${var.letsencrypt}"
     registry_volume_size    = "${var.registry_volume_size}"
 }
 ```
@@ -160,9 +155,14 @@ In your terraform `main.tf` file include the [terraform-openshift-deploy](https:
 
 ```terraform
 module "openshift" {
-    source                = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-deploy.git"
+    # source                = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-deploy.git"
+    source                  = "../git/terraform-openshift-deploy"
     bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
     bastion_private_ssh_key = "${var.private_ssh_key}"
+    master_count            = "${var.master_count}"
+    infra_count             = "${var.infra_count}"
+    app_count               = "${var.app_count}"
+    storage_count           = "${var.storage_count}"
     master_private_ip       = "${module.infrastructure.master_private_ip}"
     infra_private_ip        = "${module.infrastructure.infra_private_ip}"
     app_private_ip          = "${module.infrastructure.app_private_ip}"
@@ -172,6 +172,8 @@ module "openshift" {
     app_hostname            = "${module.infrastructure.app_hostname}"
     storage_hostname        = "${module.infrastructure.storage_hostname}"
     domain                  = "${var.domain}"
+    bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
+    bastion_private_ssh_key = "${var.private_ssh_key}"
 }
 ```
 

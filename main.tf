@@ -51,7 +51,7 @@ module "rhnregister" {
 }
 
 module "dnscerts" {
-    source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-dnscerts.git"
+    source                   = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-dnscerts.git"
     dnscerts                 = "${var.dnscerts}"
     cloudflare_email         = "${var.cloudflare_email}"
     cloudflare_token         = "${var.cloudflare_token}"
@@ -86,8 +86,7 @@ module "dnscerts" {
 
 
 module "inventory" {
-    # source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-inventory.git"
-    source                  = "../git/terraform-openshift-inventory"
+    source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-inventory.git"
     domain                  = "${var.domain}"
     bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
     bastion_private_ip      = "${module.infrastructure.bastion_private_ip}"
@@ -119,8 +118,7 @@ module "inventory" {
 # Deploy openshift
 # ####################################################
 module "openshift" {
-    # source                = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-deploy.git"
-    source                  = "../git/terraform-openshift-deploy"
+    source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-deploy.git"
     bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
     bastion_private_ssh_key = "${var.private_ssh_key}"
     master_count            = "${var.master_count}"

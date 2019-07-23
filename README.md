@@ -201,13 +201,41 @@ Deploy OpenShift
 $ terraform apply -target=module.openshift
 ```
 
-### Step 6:  Access your OpenShift Console
-To grab your console URL, ssh into the bastion server and from there ssh into one of your master vms.
+### Step 6:  Access your OpenShift Cluster
+In your terraform `main.tf` file include the [terraform-openshift-kubeconfig](https://github.ibm.com/ncolon/terraform-openshift-kubeconfig) module. It will pull necessary information from the infrastructure module above.
 
-```bash
-$ ssh -i ~/.ssh/openshift_rsa root@$(terraform output bastion_public_ip)
-$ ssh <master-0>
-$ oc get routes -n openshift-console
+```terraform
+module "kubeconfig" {
+    source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-kubeconfig.git"
+    bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
+    bastion_private_ssh_key = "${var.private_ssh_key}"
+    master_private_ip       = "${module.infrastructure.master_private_ip}"
+    cluster_name            = "${var.hostname_prefix}-${random_id.tag.hex}"
+}
 ```
 
-Credentials for this tutorial are `admin:admin`
+On yout `output.tf` file, add the following to expose the config
+
+```terraform
+output "kubeconfig" {
+    value = "${module.kubeconfig.config}"
+}
+```
+
+```bash
+$ export KUBECONFIG=$(terraform output kubeconfig)
+$ oc get nodes
+NAME                                      STATUS    ROLES     AGE       VERSION
+ocp-ibm-062054dd9a-app-0.ncolon.xyz       Ready     compute   2h        v1.11.0+d4cacc0
+ocp-ibm-062054dd9a-infra-0.ncolon.xyz     Ready     infra     2h        v1.11.0+d4cacc0
+ocp-ibm-062054dd9a-master-0.ncolon.xyz    Ready     master    2h        v1.11.0+d4cacc0
+ocp-ibm-062054dd9a-storage-0.ncolon.xyz   Ready     compute   2h        v1.11.0+d4cacc0
+ocp-ibm-062054dd9a-storage-1.ncolon.xyz   Ready     compute   2h        v1.11.0+d4cacc0
+ocp-ibm-062054dd9a-storage-2.ncolon.xyz   Ready     compute   2h        v1.11.0+d4cacc0
+
+$ oc get routes -n openshift-console
+NAME      HOST/PORT                              PATH      SERVICES   PORT      TERMINATION          WILDCARD
+console   console.apps-ibm-96274e13.ncolon.xyz             console    https     reencrypt/Redirect   None
+```
+
+Credentials for this example are `admin:admin`

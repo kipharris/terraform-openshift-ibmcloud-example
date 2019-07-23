@@ -82,5 +82,8 @@ output "storage_public_ip" {
 }
 
 #################################################
-# Output Inventory
+# Output OpenShift
 #################################################
+output "kubeconfig" {
+    value = "${module.kubeconfig.export_path}"
+}

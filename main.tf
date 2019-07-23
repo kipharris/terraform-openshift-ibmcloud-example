@@ -137,3 +137,14 @@ module "openshift" {
     bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
     bastion_private_ssh_key = "${var.private_ssh_key}"
 }
+
+# ####################################################
+# Copy kube config file to local machine
+# ####################################################
+module "kubeconfig" {
+    source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-kubeconfig.git"
+    bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
+    bastion_private_ssh_key = "${var.private_ssh_key}"
+    master_private_ip       = "${module.infrastructure.master_private_ip}"
+    cluster_name            = "${var.hostname_prefix}-${random_id.tag.hex}"
+}

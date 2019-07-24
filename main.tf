@@ -112,6 +112,7 @@ module "inventory" {
     cluster_public_hostname = "${var.master_cname}-${random_id.tag.hex}.${var.domain}"
     app_cluster_subdomain   = "${var.app_cname}-${random_id.tag.hex}.${var.domain}"
     registry_volume_size    = "${var.registry_volume_size}"
+    dnscerts                = "${var.dnscerts}"
 }
 
 # ####################################################

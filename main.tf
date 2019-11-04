@@ -4,7 +4,7 @@ resource "random_id" "tag" {
 }
 
 module "infrastructure" {
-    source                = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-ibminfra.git"
+    source                = "https://github.com/kipharris/terraform-openshift-ibminfra-nc.git"
     ibm_sl_username       = "${var.ibm_sl_username}"
     ibm_sl_api_key        = "${var.ibm_sl_api_key}"
     datacenter            = "${var.datacenter}"

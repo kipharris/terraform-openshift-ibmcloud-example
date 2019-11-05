@@ -84,6 +84,8 @@
 #################################################
 # Output OpenShift
 #################################################
+/*
 output "kubeconfig" {
     value = "${module.kubeconfig.config}"
 }
+*/

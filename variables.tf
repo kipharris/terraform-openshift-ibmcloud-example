@@ -126,19 +126,21 @@ variable "infra" {
 variable "worker" {
   type = "map"
     default = {
-    nodes  = "1"
+    nodes  = "3"
     vcpu   = "8"
     memory = "32768"
     disk_size           = "100"      # Specify size or leave empty to use same size as template.
     docker_disk_size    = "100"   # Specify size for docker disk, default 100.
     docker_disk_device  = "/dev/xvdc"
+    gluster_disk_size   = "250"
+    gluster_disk_device = "/dev/xvde"
   }
 }
 
 variable "storage" {
   type = "map"
     default = {
-    nodes  = "3"
+    nodes  = "0"
     vcpu   = "8"
     memory = "16384"
     disk_size           = "100"      # Specify size or leave empty to use same size as template.

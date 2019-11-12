@@ -1,11 +1,13 @@
 apply:
-	terraform init && terraform get
 	make infrastructure && \
 	make rhnregister && \
-	make letsencrypt && \
-	make cloudflare && \
-	make inventory && \
+	make dnscerts && \
+	make etchosts && \
 	make openshift
+
+init:
+	terraform init 
+	terraform get
 
 infrastructure:
 	terraform apply -target=module.infrastructure -auto-approve
@@ -13,21 +15,32 @@ infrastructure:
 rhnregister:
 	terraform apply -target=module.rhnregister -auto-approve
 
-letsencrypt:
-	terraform apply -target=module.letsencrypt -auto-approve
+dnscerts:
+	terraform apply -target=module.dnscerts -auto-approve
 
-cloudflare:
-	terraform apply -target=module.cloudflare  -auto-approve
+etchosts:
+	terraform apply -target=module.etchosts -auto-approve
 
 inventory:
-	terraform init && terraform get && terraform apply -target=module.inventory -auto-approve
+	terraform apply -target=module.inventory -auto-approve
 
 openshift:
-	terraform init && terraform get && terraform apply -target=module.openshift -auto-approve
+	terraform apply -target=module.openshift -auto-approve
+
+kubeconfig:
+	terraform apply -target=module.kubeconfig -auto-approve	
+	export KUBECONFIG=$(terraform output kubeconfig)
 
 sshbastion:
 	ssh -i ~/.ssh/openshift_rsa root@`terraform output bastion_public_ip`
 
-destroy:
-	terraform destroy -auto-approve
+destroy-dnscerts:
+	terraform destroy -target=module.dnscerts -auto-approve
+
+destroy-rhnregister:
+	terraform destroy -target=module.rhnregister -auto-approve
+
+destroy-infrastructure:
+	terraform destroy -target=module.infrastructure -auto-approve
+
 

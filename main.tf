@@ -4,7 +4,7 @@ resource "random_id" "tag" {
 }
 
 module "infrastructure" {
-    source                = "github.com/kipharris/terraform-openshift-ibminfra-nc?ref=min-topology"
+    source                = "github.com/kipharris/terraform-openshift-ibminfra?ref=min-topology"
     ibm_sl_username       = "${var.ibm_sl_username}"
     ibm_sl_api_key        = "${var.ibm_sl_api_key}"
     datacenter            = "${var.datacenter}"

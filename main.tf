@@ -4,7 +4,7 @@ resource "random_id" "tag" {
 }
 
 module "infrastructure" {
-    source                = "https://github.com/kipharris/terraform-openshift-ibminfra-nc.git"
+    source                = "https://github.com/kipharris/terraform-openshift-ibminfra.git"
     ibm_sl_username       = "${var.ibm_sl_username}"
     ibm_sl_api_key        = "${var.ibm_sl_api_key}"
     datacenter            = "${var.datacenter}"
@@ -39,7 +39,7 @@ locals {
 }
 
 module "rhnregister" {
-  source = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-rhnregister.git"
+  source = "https://github.com/kipharris/terraform-openshift-rhnregister.git"
   bastion_ip_address = "${module.infrastructure.bastion_public_ip}"
   private_ssh_key    = "${var.private_ssh_key}"
   ssh_username       = "${var.ssh_user}"
@@ -51,7 +51,7 @@ module "rhnregister" {
 }
 
 module "dnscerts" {
-    source                   = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-dnscerts.git"
+    source                   = "https://github.com/kipharris/terraform-openshift-dnscerts.git"
     dnscerts                 = "${var.dnscerts}"
     cloudflare_email         = "${var.cloudflare_email}"
     cloudflare_token         = "${var.cloudflare_token}"
@@ -105,7 +105,7 @@ locals {
 }
 
 module "etchosts" {
-    source = "git::ssh://git@github.ibm.com/ncolon/terraform-dns-etc-hosts.git"
+    source = "https://github.com/kipharris/terraform-dns-etc-hosts.git"
     bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
     ssh_user                = "${var.ssh_user}"
     ssh_private_key         = "${var.private_ssh_key}"
@@ -118,7 +118,7 @@ module "etchosts" {
 # Deploy openshift
 # ####################################################
 module "openshift" {
-    source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-deploy.git"
+    source                  = "https://github.com/kipharris/terraform-openshift-deploy.git"
     bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
     bastion_private_ssh_key = "${var.private_ssh_key}"
     master_private_ip       = "${module.infrastructure.master_private_ip}"
@@ -160,7 +160,7 @@ module "openshift" {
 # Copy kube config file to local machine
 # ####################################################
 module "kubeconfig" {
-    source                  = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-kubeconfig.git"
+    source                  = "https://github.com/kipharris/terraform-openshift-kubeconfig.git"
     bastion_ip_address      = "${module.infrastructure.bastion_public_ip}"
     bastion_private_ssh_key = "${var.private_ssh_key}"
     master_private_ip       = "${module.infrastructure.master_private_ip}"
